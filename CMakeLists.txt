@@ -5,6 +5,7 @@ include(cmake/CommonCMakeConfig.cmake)
 file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" VERSION LIMIT_COUNT 1)
 
 set(PREFIX "${CMAKE_INSTALL_PREFIX}")
+set(LIBDIR "${CMAKE_INSTALL_LIBDIR}")
 set(ZEEKSCRIPTDIR "${ZEEK_SCRIPT_INSTALL_PATH}")
 set(ETC "${ZEEK_ETC_INSTALL_DIR}")
 
@@ -107,7 +108,7 @@ InstallShellScript(share/zeekctl/scripts/helpers bin/helpers/top)
 InstallShellScript(share/zeekctl/scripts/postprocessors bin/postprocessors/summarize-connections)
 
 install(DIRECTORY ZeekControl
-        DESTINATION lib/zeekctl
+        DESTINATION ${PY_MOD_INSTALL_DIR}/zeekctl
         PATTERN "options.py" EXCLUDE
         PATTERN "ssh_runner.py" EXCLUDE
         PATTERN "version.py" EXCLUDE
@@ -123,13 +124,13 @@ configure_file(ZeekControl/ssh_runner.py
 configure_file(ZeekControl/version.py
                ${CMAKE_CURRENT_BINARY_DIR}/ZeekControl/version.py @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ZeekControl/options.py
-        DESTINATION lib/zeekctl/ZeekControl)
+        DESTINATION ${PY_MOD_INSTALL_DIR}/zeekctl/ZeekControl)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ZeekControl/ssh_runner.py
-        DESTINATION lib/zeekctl/ZeekControl)
+        DESTINATION ${PY_MOD_INSTALL_DIR}/zeekctl/ZeekControl)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/ZeekControl/version.py
-        DESTINATION lib/zeekctl/ZeekControl)
+        DESTINATION ${PY_MOD_INSTALL_DIR}/zeekctl/ZeekControl)
 install(DIRECTORY ZeekControl/plugins
-        DESTINATION lib/zeekctl)
+        DESTINATION ${PY_MOD_INSTALL_DIR}/zeekctl)
 
 # Special cases where execute permission isn't applicable.
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/bin/helpers/to-bytes.awk
@@ -237,7 +238,7 @@ InstallSymlink("${CMAKE_INSTALL_PREFIX}/bin/zeek-wrapper" "${CMAKE_INSTALL_PREFI
 
 if ( NOT BINARY_PACKAGING_MODE )
   # Need to remove pre-existing $prefix/lib/broctl dir from previous installs.
-  set(_broctl_lib_dst ${CMAKE_INSTALL_PREFIX}/lib/broctl)
+  set(_broctl_lib_dst ${CMAKE_INSTALL_LIBDIR}/broctl)
 
   install(CODE "
     if ( \"\$ENV{DESTDIR}\" STREQUAL \"\" )
@@ -248,11 +249,24 @@ if ( NOT BINARY_PACKAGING_MODE )
       endif ()
     endif ()
   ")
+
+
+  # Remove zeekctl from its previous, hardwired install path.
+  # Below we install into a common python subdirectory.
+  set(_zeekctl_lib_dst ${CMAKE_INSTALL_PREFIX}/lib/zeekctl)
+
+  install(CODE "
+    if ( EXISTS \"${_zeekctl_lib_dst}\" AND IS_DIRECTORY \"${_zeekctl_lib_dst}\" )
+        message(STATUS \"WARNING: removing old directory ${_zeekctl_lib_dst}\")
+        execute_process(COMMAND \"${CMAKE_COMMAND}\" -E remove_directory
+          \"${_zeekctl_lib_dst}\")
+    endif ()
+  ")
 endif ()
 
-InstallSymlink("./zeekctl" "${CMAKE_INSTALL_PREFIX}/lib/broctl")
+InstallSymlink("./zeekctl" "${CMAKE_INSTALL_LIBDIR}/broctl")
 
-install(DIRECTORY BroControl DESTINATION lib/zeekctl)
+install(DIRECTORY BroControl DESTINATION "${PY_MOD_INSTALL_DIR}/zeekctl")
 
 ########################################################################
 ## Packaging Setup

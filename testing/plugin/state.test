@@ -7,7 +7,7 @@
 . zeekctl-test-setup
 
 while read line; do installfile $line; done << EOF
-plugins/statetest.py lib/zeekctl/plugins --new
+plugins/statetest.py lib/python/zeekctl/plugins --new
 EOF
 
 zeekctl exit

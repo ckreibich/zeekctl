@@ -7,7 +7,7 @@
 . zeekctl-test-setup
 
 while read line; do installfile $line; done << EOF
-plugins/optionstest.py lib/zeekctl/plugins --new
+plugins/optionstest.py lib/python/zeekctl/plugins --new
 EOF
 
 # Test that default values are recognized.

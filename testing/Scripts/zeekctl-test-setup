@@ -147,7 +147,7 @@ canonicalpath() {
 # Set the correct install prefix directory in all files where it's needed
 # (this is done immediately after untarring the Zeek install).
 replaceprefixes() {
-    for i in etc/zeekctl.cfg bin/zeekctl lib/zeekctl/ZeekControl/version.py ; do
+    for i in etc/zeekctl.cfg bin/zeekctl lib/python/zeekctl/ZeekControl/version.py ; do
         sed "s#@PREFIX@#${ZEEKCTL_INSTALL_PREFIX}#" $i > $i.new && cp $i.new $i && rm $i.new
         if [ $? -ne 0 ]; then
             return 1

@@ -7,8 +7,9 @@ import sys
 import time
 import logging
 
-# This is needed so that we can import ZeekControl.
-sys.path.insert(0, "@PREFIX@/lib/zeekctl")
+# This is needed so that we can import ZeekControl and the broker Python bindings.
+sys.path.insert(0, "@LIBDIR@/python")
+sys.path.insert(0, "@LIBDIR@/python/zeekctl")
 
 from ZeekControl.zeekctl import ZeekCtl, ZeekControlError, CommandSyntaxError
 from ZeekControl import zeekcmd
